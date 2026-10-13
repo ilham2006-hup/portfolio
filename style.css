@@ -1,0 +1,747 @@
+
+
+
+/* ------------------------------------------------------------
+   1. VARIABLES + RESET
+   Change a color here and it changes everywhere (var(--name)).
+------------------------------------------------------------ */
+:root {
+  --bg: #150a12;                        /* page background (dark plum) */
+  --fg: #f1f3ea;                        /* main text color (off-white) */
+  --muted: rgba(241, 243, 234, 0.62);   /* secondary text (semi-transparent) */
+  --line: rgba(241, 243, 234, 0.14);    /* thin separator lines */
+  --accent: #A3B18A;                    /* sage green: buttons, highlights */
+  --plum: #7a2f62;                      /* light plum, used by a blob */
+  --ink: #150a12;                       /* text color ON the sage background */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1); /* smooth "fast start, soft end" curve */
+  --pad-x: 6vw;                         /* left/right page margin (6% of screen width) */
+}
+
+/* Remove default browser spacing; padding doesn't grow the box size */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { background: var(--bg); }
+
+body {
+  /* Uses the font of the visitor's system (fast, no download) */
+  font-family: ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.7;      /* space between lines */
+  color: var(--fg);
+}
+
+/* Text selection color */
+::selection { background: var(--accent); color: var(--ink); }
+/* Links take the color of the text around them */
+a { color: inherit; }
+/* Visible outline when navigating with the keyboard (Tab) */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+
+/* ------------------------------------------------------------
+   2. ANIMATED BACKGROUND (blobs + grain)
+------------------------------------------------------------ */
+.bg {
+  position: fixed;          /* stays in place while scrolling */
+  inset: 0;                 /* covers the whole screen (top/right/bottom/left = 0) */
+  z-index: -1;              /* behind all content */
+  overflow: hidden;         /* hides the parts of blobs outside the screen */
+  pointer-events: none;     /* clicks go through it */
+  background:
+    radial-gradient(120% 80% at 50% 0%, #2a1224 0%, var(--bg) 60%); /* soft light at the top */
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;       /* circle */
+  filter: blur(90px);       /* makes the circle a soft glow */
+  will-change: transform, translate; /* tells the browser: smooth animation */
+  /* TWO movements on purpose:
+     - "translate"  = position that changes with the section (set by :root[data-s])
+     - "transform"  = endless drift (set by @keyframes drift1/2/3)
+     Using two different properties lets them combine without fighting. */
+  translate: var(--x, 0) var(--y, 0);
+  transition: translate 1.8s var(--ease);  /* slide slowly to the new position */
+}
+
+/* Blob 1: sage, top-left */
+.b1 {
+  width: 55vmax; height: 55vmax;   /* vmax = % of the biggest screen side */
+  left: -15vmax; top: -15vmax;     /* partly outside the screen */
+  background: var(--accent);
+  opacity: 0.32;
+  --x: var(--x1, 0); --y: var(--y1, 0);  /* reads the position set per section */
+  animation: drift1 22s ease-in-out infinite alternate; /* back-and-forth forever */
+}
+
+/* Blob 2: plum, right */
+.b2 {
+  width: 50vmax; height: 50vmax;
+  right: -18vmax; top: 15vh;
+  background: var(--plum);
+  opacity: 0.55;
+  --x: var(--x2, 0); --y: var(--y2, 0);
+  animation: drift2 26s ease-in-out infinite alternate;
+}
+
+/* Blob 3: dark green, bottom */
+.b3 {
+  width: 60vmax; height: 60vmax;
+  left: 15vw; bottom: -30vmax;
+  background: #3f5a46;
+  opacity: 0.35;
+  --x: var(--x3, 0); --y: var(--y3, 0);
+  animation: drift3 30s ease-in-out infinite alternate;
+}
+
+/* Drift animations: only the END state is written ("to"),
+   the start is the normal position. Different durations (22s/26s/30s)
+   so the 3 blobs never move in sync. */
+@keyframes drift1 { to { transform: translate(6vw, 5vh) scale(1.1); } }
+@keyframes drift2 { to { transform: translate(-7vw, 6vh) scale(0.92); } }
+@keyframes drift3 { to { transform: translate(5vw, -6vh) scale(1.08); } }
+
+/* Blob positions per section.
+   script.js sets <html data-s="0..4"> = index of the active section.
+   Each line gives x/y offsets for blob 1, 2, 3.
+   Adding a 6th section? Add a data-s="5" line here. */
+:root[data-s="0"] { --x1: 0;    --y1: 0;    --x2: 0;     --y2: 0;    --x3: 0;    --y3: 0; }
+:root[data-s="1"] { --x1: 35vw; --y1: 15vh; --x2: -30vw; --y2: 25vh; --x3: 10vw; --y3: -25vh; }
+:root[data-s="2"] { --x1: 55vw; --y1: 45vh; --x2: -45vw; --y2: -5vh; --x3: -20vw; --y3: -10vh; }
+:root[data-s="3"] { --x1: 20vw; --y1: 60vh; --x2: -20vw; --y2: 40vh; --x3: 30vw; --y3: -35vh; }
+:root[data-s="4"] { --x1: 60vw; --y1: 20vh; --x2: -50vw; --y2: 30vh; --x3: -10vw; --y3: -30vh; }
+
+/* Light grain over the background (SVG noise generated inline, no image file) */
+.bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;   /* very subtle */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+
+/* ------------------------------------------------------------
+   3. PROGRESS BAR + NAME BUTTON
+------------------------------------------------------------ */
+/* Thin line at the top. Its width = scroll percentage.
+   script.js writes --progress (0 to 1); scaleX() stretches the line. */
+.progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;                 /* grows from the left */
+  transform: scaleX(var(--progress, 0));
+  z-index: 60;                            /* above everything */
+}
+
+/* display: contents = the <header> has no box of its own;
+   only the name button inside is shown */
+.topbar { display: contents; }
+
+/* Name button, fixed bottom right.
+   env(safe-area-inset-...) = extra space on phones with notch / home bar */
+.brand {
+  position: fixed;
+  right: calc(24px + env(safe-area-inset-right, 0px));
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  z-index: 50;
+  padding: 10px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;           /* never wraps on 2 lines */
+  cursor: pointer;
+  color: var(--fg);
+  /* "Frosted glass" look: semi-transparent + blur of what is behind */
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);  /* Safari */
+  backdrop-filter: blur(18px) saturate(140%);
+  border-radius: 999px;          /* fully rounded pill */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s var(--ease);
+}
+
+/* On hover: turns sage and lifts by 3px */
+.brand:hover {
+  background: var(--accent);
+  color: var(--ink);
+  transform: translateY(-3px);
+}
+
+
+/* ------------------------------------------------------------
+   4. SECTIONS LAYOUT + REVEAL ANIMATION
+   Title on the left (stays in place), content on the right.
+------------------------------------------------------------ */
+.page { position: relative; }
+
+.page-inner {
+  min-height: 100vh; min-height: 100svh; /* at least one full screen tall (svh = phone-safe) */
+  padding: 14vh var(--pad-x) calc(110px + env(safe-area-inset-bottom, 0px)); /* bottom space for the dock */
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); /* 2 columns: 5 parts / 7 parts */
+  column-gap: 5vw;
+  align-items: start;                    /* both columns start at the top */
+}
+
+/* Contact needs more bottom space so the footer isn't hidden by the dock */
+#contact .page-inner { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
+
+/* Right column: its children are stacked with 48px between them */
+.page-body {
+  display: grid;
+  gap: 48px;
+  padding-top: 0.6rem;
+}
+
+/* Before the section is visible, all blocks are invisible */
+.page-inner > .page-title,
+.page-inner > .hero-header,
+.page-inner > .bento-grid,
+.page-body > * { opacity: 0; }
+
+/* When script.js adds ".in-view" to the section, every block plays "reveal".
+   --i (set by script.js) = block number (0,1,2...) -> each block starts
+   80ms after the previous one = "one after the other" effect.
+   The animation replays every time you come back to the section. */
+.page.in-view .page-inner > .page-title,
+.page.in-view .page-inner > .hero-header,
+.page.in-view .page-inner > .bento-grid,
+.page.in-view .page-body > * {
+  animation: reveal 0.9s var(--ease) both;   /* "both" = keeps the final state */
+  animation-delay: calc(var(--i, 0) * 80ms + 100ms);
+}
+
+/* From: invisible, 36px lower, blurred -> To: visible, in place, sharp */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(36px); filter: blur(12px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+
+
+/* ------------------------------------------------------------
+   5. TITLES AND TEXT
+------------------------------------------------------------ */
+.page-title {
+  position: sticky;      /* stays visible while the right column scrolls */
+  top: 14vh;
+  font-size: clamp(2.6rem, 6vw, 6.2rem);  /* min, preferred, max size */
+  font-weight: 700;
+  letter-spacing: -0.04em;                /* tighter letters */
+  line-height: 0.95;
+  text-wrap: balance;                     /* balanced line breaks */
+  overflow-wrap: anywhere;                /* long words can break */
+  /* Gradient text: gradient background clipped to the letters + transparent text */
+  background: linear-gradient(180deg, #ffffff 25%, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: 0.08em;                 /* avoids cutting letters like "g" */
+}
+
+/* Small number above the title, read from data-no="02" in the HTML */
+.page-title[data-no]::before {
+  content: attr(data-no);
+  display: block;
+  margin-bottom: 18px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.role { font-size: 1.2rem; color: var(--muted); margin-top: 20px; }
+
+/* Small sage headings ("education", "experience") */
+h3 {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+/* Paragraphs: max 60 characters wide = comfortable to read */
+p { max-width: 60ch; color: rgba(241, 243, 234, 0.88); }
+
+
+/* ------------------------------------------------------------
+   6a. HOME : name at the bottom left, card at the top right
+------------------------------------------------------------ */
+#home .page-inner {
+  display: flex;
+  flex-direction: column-reverse;   /* visually flips the order: name goes to the bottom */
+  justify-content: space-between;   /* one block at the top, one at the bottom */
+  gap: 40px;
+  padding-top: 12vh;
+  padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Big name: not sticky on the home page, much bigger font */
+#home .page-title {
+  position: static;
+  font-size: clamp(3.6rem, min(13vw, 20vh), 12rem);
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+}
+
+/* Card container: pushed to the right */
+.bento-grid {
+  align-self: flex-end;
+  width: min(440px, 100%);
+}
+
+/* Glass card */
+.bento-card {
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-radius: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* "ABOUT" pill */
+.card-tag {
+  display: inline-block;
+  padding: 3px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Heading inside the card is white and bigger (overrides the global h3) */
+.bento-card h3 {
+  margin: 16px 0 10px;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+
+
+/* ------------------------------------------------------------
+   6b. INFO ROWS (education / experience)
+------------------------------------------------------------ */
+.rows { border-bottom: 1px solid var(--line); }   /* line under the last row */
+
+.row {
+  display: grid;
+  grid-template-columns: 10rem 1fr;   /* date column 10rem wide, text takes the rest */
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);  /* line above each row */
+}
+
+.label { color: var(--muted); font-size: 0.9rem; padding-top: 2px; }
+.sub { display: block; color: var(--muted); }     /* subtitle on its own line */
+
+
+/* ------------------------------------------------------------
+   6c. PROJECTS
+------------------------------------------------------------ */
+.projects { border-bottom: 1px solid var(--line); }
+
+.project {
+  display: flex;
+  justify-content: space-between;   /* text left, arrow right */
+  align-items: center;
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  text-decoration: none;            /* no underline on the link */
+  transition: padding-left 0.3s var(--ease), background-color 0.3s ease;
+}
+
+/* Hover: text slides right by 14px + light background */
+.project:hover { padding-left: 14px; background: rgba(255, 255, 255, 0.05); }
+.p-title { display: block; font-size: 1.2rem; font-weight: 600; }
+.p-desc { display: block; color: var(--muted); font-size: 0.95rem; }
+.arrow { font-size: 1.3rem; color: var(--accent); transition: transform 0.3s var(--ease); }
+/* Hover: the ↗ arrow moves up-right */
+.project:hover .arrow { transform: translate(3px, -3px); }
+
+
+/* ------------------------------------------------------------
+   6d. CONTACT
+------------------------------------------------------------ */
+.big-link {
+  display: inline-block;
+  font-size: clamp(1.4rem, 3.2vw, 2.8rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-underline-offset: 8px;            /* gap between text and underline */
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+  overflow-wrap: anywhere;               /* long email can wrap on small screens */
+}
+
+.big-link:hover { text-decoration-thickness: 5px; }  /* underline gets thicker */
+.links { list-style: none; }                         /* no bullet points */
+.links li { padding: 4px 0; }
+.links a { text-underline-offset: 4px; }
+.footer { color: var(--muted); font-size: 0.9rem; }
+
+
+/* ------------------------------------------------------------
+   7. DOCK (frosted glass navigation bar)
+------------------------------------------------------------ */
+.dock {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);   /* left:50% + this = perfectly centered */
+  display: flex;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  z-index: 50;
+  touch-action: none;            /* lets JS handle finger drag (no page scroll) */
+  user-select: none;             /* text can't be selected while dragging */
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.dock.dragging { cursor: grabbing; }   /* class added by script.js during a drag */
+
+.dock a {
+  position: relative;
+  z-index: 1;                    /* above the sage pill (.dock-highlight) */
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  text-decoration: none;
+  color: var(--fg);
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: color 0.25s ease;
+  -webkit-user-drag: none;       /* prevents dragging the link as an object */
+}
+
+.dock a.active { color: var(--ink); }          /* active link: dark text on the sage pill */
+.dock a:focus-visible { outline-offset: -3px; }
+
+/* The sage pill. script.js sets its width and translateX to match the
+   active link; the transition makes it SLIDE between links. */
+.dock-highlight {
+  position: absolute;
+  top: 6px; bottom: 6px; left: 0;
+  width: 0;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: transform 0.4s var(--ease), width 0.4s var(--ease);
+  pointer-events: none;
+}
+
+
+/* ------------------------------------------------------------
+   7b. TOOLTIP (section name above the dock while dragging)
+------------------------------------------------------------ */
+.dock-tip {
+  position: absolute;
+  bottom: calc(100% + 12px);     /* 12px above the dock */
+  left: 0;                       /* script.js sets the real position */
+  transform: translateX(-50%) translateY(6px);
+  padding: 4px 12px;
+  background: var(--accent);
+  color: var(--ink);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;                    /* hidden by default */
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, left 0.3s ease;
+}
+
+/* Visible only while dragging */
+.dock.dragging .dock-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+
+/* ------------------------------------------------------------
+   8a. INTERACTIVE SKILLS
+------------------------------------------------------------ */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }   /* buttons wrap to next line if needed */
+
+.chip-filter {
+  font: inherit;                 /* buttons use the page font (not the browser default) */
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  color: var(--fg);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.25s, color 0.25s, transform 0.25s var(--ease), border-color 0.25s;
+}
+
+.chip-filter:hover { transform: translateY(-2px); border-color: var(--accent); }
+/* Selected filter = full sage */
+.chip-filter.active { background: var(--accent); color: var(--ink); border-color: var(--accent); }
+
+.skill-cloud { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.skill {
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 8px 16px;
+  color: var(--fg);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s var(--ease), background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+/* Hover: lifts 4px, grows 5%, gets a shadow */
+.skill:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); }
+/* Clicked skill (class added by script.js) */
+.skill.selected { background: var(--accent); color: var(--ink); transform: scale(1.08); }
+/* Skill hidden by a filter (class added by script.js) */
+.skill.hide { display: none; }
+
+/* Skills "pop" in one by one when the section appears.
+   --k (set by script.js) = skill number -> 30ms delay between each. */
+.page.in-view .skill {
+  animation: pop 0.5s var(--ease) both;
+  animation-delay: calc(var(--k, 0) * 30ms + 300ms);
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.6) translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* "Used in: ..." line. min-height avoids a layout jump when the text changes */
+.skill-info { min-height: 1.7em; color: var(--accent); font-size: 0.95rem; }
+
+
+/* ------------------------------------------------------------
+   8b. GLOW THAT FOLLOWS THE CURSOR
+   script.js writes the mouse position in --mx / --my on hover.
+------------------------------------------------------------ */
+.row, .project, .bento-card { position: relative; }  /* needed so ::before can be placed inside */
+
+.row::before, .project::before, .bento-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;                      /* covers the whole element */
+  border-radius: inherit;        /* same rounded corners as the element */
+  /* soft sage circle (260px) centered on the mouse */
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(163, 177, 138, 0.18), transparent 70%);
+  opacity: 0;                    /* invisible until hover */
+  transition: opacity 0.3s;
+  pointer-events: none;          /* never blocks clicks */
+}
+
+.row:hover::before, .project:hover::before, .bento-card:hover::before { opacity: 1; }
+
+
+/* ------------------------------------------------------------
+   8c. HOME : TYPING EFFECT (blinking cursor)
+   The text itself is written letter by letter by script.js.
+------------------------------------------------------------ */
+.role { min-height: 1.7em; }     /* keeps the height when the text is empty */
+
+/* "|" added after the text */
+.role::after {
+  content: "|";
+  margin-left: 2px;
+  color: var(--accent);
+  animation: blink 1s steps(1) infinite;  /* steps(1) = on/off, no fade */
+}
+
+@keyframes blink { 50% { opacity: 0; } }  /* invisible at half time */
+
+
+/* ------------------------------------------------------------
+   8d. "COPY EMAIL" BUTTON
+------------------------------------------------------------ */
+.copy {
+  font: inherit;
+  font-size: 0.85rem;
+  margin-left: 14px;
+  padding: 8px 16px;
+  color: var(--fg);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, transform 0.3s var(--ease);
+}
+
+.copy:hover { background: var(--accent); color: var(--ink); transform: translateY(-2px); }
+
+
+/* ------------------------------------------------------------
+   9. MOBILE (screens up to 760px wide)
+------------------------------------------------------------ */
+@media (max-width: 760px) {
+  :root { --pad-x: 20px; }          /* smaller side margins */
+
+  /* One column instead of two */
+  .page-inner {
+    display: block;
+    padding-top: 12vh;
+    padding-bottom: 8vh;
+  }
+
+  #contact .page-inner { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+
+  /* Title is no longer sticky; it sits above the content */
+  .page-title {
+    position: static;
+    margin-bottom: 28px;
+    font-size: clamp(2.4rem, 12vw, 4rem);
+  }
+
+  /* Home: name first, then the card */
+  #home .page-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 36px;
+    padding-top: 14vh;
+    padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #home .page-title {
+    margin-bottom: 0;
+    font-size: clamp(3.2rem, 18vw, 6rem);
+  }
+
+  .bento-grid { align-self: stretch; width: 100%; }  /* card takes the full width */
+
+  /* Name button sits just above the dock */
+  .brand {
+    right: calc(20px + env(safe-area-inset-right, 0px));
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .row { grid-template-columns: 1fr; gap: 2px; }    /* date above text */
+  .copy { margin-left: 0; margin-top: 12px; }       /* button under the email */
+  .dock { max-width: calc(100vw - 20px); }          /* dock never wider than the screen */
+  .dock a { padding: 8px 9px; font-size: 0.78rem; } /* tighter links */
+}
+
+
+/* ------------------------------------------------------------
+   10. ACCESSIBILITY
+   If the visitor turned off animations in their system settings:
+   everything is shown immediately, nothing moves.
+------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Without animations, blocks must be visible right away */
+  .page-inner > .page-title,
+  .page-inner > .hero-header,
+  .page-inner > .bento-grid,
+  .page-body > * { opacity: 1 !important; }
+}
+
+
+/* ------------------------------------------------------------
+   11. EXTRA BACKGROUND DECORATIONS
+   (code you added: orbits, stars, particles)
+------------------------------------------------------------ */
+
+/* Second ".bg" rule: it repeats section 2 (position, inset, overflow...).
+   It is harmless (same values) but could be deleted. The gradient
+   background from section 2 is kept because this rule doesn't override it. */
+.bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* UNUSED: ".glow" / ".g1".."g4" and "@keyframes float" are not used
+   in your HTML (no element has class "glow"). Safe to delete. */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.45;
+  animation: float 12s ease-in-out infinite alternate;
+}
+
+.g1 { width: 400px; height: 400px; background: #693b70; top: -100px; left: -100px; }
+.g2 { width: 350px; height: 350px; background: #a34f78; top: 20%; right: -100px; animation-delay: -3s; }
+.g3 { width: 450px; height: 450px; background: #382c70; bottom: -150px; left: 20%; animation-delay: -6s; }
+.g4 { width: 250px; height: 250px; background: #9b6a9e; bottom: 15%; right: 15%; animation-delay: -2s; }
+
+@keyframes float {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(40px, -30px) scale(1.15); }
+}
+
+/* UNUSED: ".cosmic-bg" is not in your HTML either (your orbits/stars/particles
+   are inside ".bg"). Safe to delete. */
+.cosmic-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ORBITS: thin tilted ellipses (border only, no fill).
+   #b69aff40 = light purple at 25% opacity (the "40" at the end is the alpha). */
+.orbit {
+  position: absolute;
+  border: 1px solid #b69aff40;
+  border-radius: 50%;
+  transform: rotate(-35deg);
+}
+
+.orbit-1 { width: 450px; height: 180px; top: 10%; left: -100px; }
+.orbit-2 { width: 350px; height: 140px; top: 40%; right: -80px; transform: rotate(45deg); }
+.orbit-3 { width: 250px; height: 100px; bottom: 10%; left: 25%; transform: rotate(-20deg); }
+
+/* STARS: ✦ ✧ symbols that twinkle (see @keyframes twinkle below) */
+.star {
+  position: absolute;
+  color: #c8b5ff;
+  animation: twinkle 3s infinite alternate;   /* alternate = fades in then out, forever */
+}
+
+.s1 { top: 15%; left: 20%; font-size: 28px; }
+.s2 { top: 45%; right: 15%; font-size: 36px; }
+.s3 { bottom: 20%; left: 65%; font-size: 22px; }
+
+/* PARTICLES: tiny glowing dots (box-shadow creates the glow) */
+.particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #c8b5ff;
+  border-radius: 50%;
+  box-shadow: 0 0 15px #c8b5ff;
+}
+
+.p1 { top: 25%; left: 70%; }
+.p2 { top: 65%; left: 15%; }
+.p3 { bottom: 15%; right: 25%; }
+
+/* Twinkle: from dim and small to bright and bigger */
+@keyframes twinkle {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.2); }
+}

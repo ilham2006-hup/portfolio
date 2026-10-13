@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+
+
+<html lang="en" data-s="0">
+<head>
+  <!-- Accents and symbols (•, ↗, ✦) display correctly -->
+  <meta charset="UTF-8">
+
+  <!-- Fits phones. viewport-fit=cover = use the full screen (notch area too) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- Text shown by Google under your link -->
+  <meta name="description" content="Portfolio of Ferrat Ilham, Computer Science student specializing in Cybersecurity.">
+
+  <!-- Colors the browser bar on phones (same as --bg in the CSS) -->
+  <meta name="theme-color" content="#150a12">
+
+  <!-- Browser tab name -->
+  <title>Ferrat Ilham • Portfolio</title>
+
+  <!-- Loads the CSS file -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+  <div class="bg" aria-hidden="true">
+
+    <!-- 3 blurred colored circles: sage (b1), plum (b2), green (b3).
+         The CSS blurs them and makes them drift; they slide to a new
+         position each time the active section changes. -->
+    <i class="blob b1"></i>
+    <i class="blob b2"></i>
+    <i class="blob b3"></i>
+
+    <!-- 3 thin tilted ellipses (decorative "orbits") -->
+    <div class="orbit orbit-1"></div>
+    <div class="orbit orbit-2"></div>
+    <div class="orbit orbit-3"></div>
+
+    <!-- 3 twinkling stars (text symbols ✦ ✧) -->
+    <span class="star s1">✦</span>
+    <span class="star s2">✧</span>
+    <span class="star s3">✦</span>
+
+    <!-- 3 small glowing dots -->
+    <span class="particle p1"></span>
+    <span class="particle p2"></span>
+    <span class="particle p3"></span>
+  </div>
+
+  <!-- Thin sage line at the top, it grows while you scroll (script.js sets its width) -->
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <!-- Your name button, fixed at the bottom right.
+       href="#home"        = fallback link if JS is off
+       data-target="home"  = script.js reads it and scrolls smoothly to #home -->
+  <header class="topbar">
+    <a class="brand" href="#home" data-target="home">ferrat ilham</a>
+  </header>
+
+
+  <main>
+
+    <!-- ========== SECTION 1 : HOME ========== -->
+    <section class="page" id="home">
+      <div class="page-inner">
+
+        <div class="hero-header">
+          <!-- <h1> = main title (only one per page). <br> = line break -->
+          <h1 class="page-title">FERRAT<br>ILHAM</h1>
+
+          <!-- id="role" : script.js finds this and runs the typing effect on it.
+               The text inside is only the starting/fallback text. -->
+          <p class="role" id="role">Future Cybersecurity Engineer</p>
+        </div>
+
+        <!-- "bento" = rounded frosted-glass card -->
+        <div class="bento-grid">
+          <div class="bento-card main-card">
+            <!-- small "About" pill -->
+            <span class="card-tag">About</span>
+            <!-- &amp; displays "&" (in HTML you must write &amp;) -->
+            <h3>Problem Solving &amp; Structure</h3>
+            <p>
+              Computer Science student specializing in cybersecurity. Motivated,
+              creative, and detail-oriented, I build structured technical
+              solutions to solve complex problems.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== SECTION 2 : EDUCATION & EXPERIENCE ========== -->
+    <section class="page" id="parcours">
+      <div class="page-inner">
+        <!-- data-no="02" : the CSS shows it as a small number above the title -->
+        <h2 class="page-title" data-no="02">education &amp; experience</h2>
+
+        <div class="page-body">
+          <!-- Education block -->
+          <div>
+            <h3>education</h3>
+            <div class="rows">
+              <!-- One .row = one line: date on the left (.label), text on the right.
+                   To add an entry, copy a .row block and change the text. -->
+              <div class="row">
+                <span class="label">2023 – Present</span>
+                <div>
+                  <strong>ENSTA School</strong>                                          <!-- bold title -->
+                  <span class="sub">2nd year of Master's cycle, Cybersecurity specialization</span> <!-- grey subtitle -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Experience block -->
+          <div>
+            <h3>experience</h3>
+            <div class="rows">
+              <div class="row">
+                <span class="label">2025 </span>
+                <div>
+                  <strong>Front-End Developer</strong>
+                  <span class="sub">LabSync project application</span>
+                </div>
+              </div>
+              <div class="row">
+                <span class="label">Summer 2025</span>
+                <div>
+                  <strong>Sales Associate</strong>
+                  <span class="sub">LC Waikiki</span>
+                </div>
+              </div>
+              <div class="row">
+                <span class="label">April 4 – 9, 2026</span>
+                <div>
+                  <strong>Internship</strong>
+                  <span class="sub">Sonelgaz</span>
+                </div>
+              </div>
+              <div class="row">
+                <span class="label">2026</span>
+                <div>
+                  <strong>Dale Carnegie Training</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SECTION 3 : SKILLS (interactive) ========== -->
+    <section class="page" id="skills">
+      <div class="page-inner">
+        <h2 class="page-title" data-no="03">skills</h2>
+
+        <div class="page-body">
+
+          <!-- FILTER BUTTONS
+               data-filter = category name that script.js reads on click.
+               "active" = the button selected at start.
+               role="group" + aria-label = describes the group for screen readers -->
+          <div class="filters" role="group" aria-label="Filter skills">
+            <button class="chip-filter active" data-filter="all">all</button>
+            <button class="chip-filter" data-filter="technical">technical</button>
+            <button class="chip-filter" data-filter="tools">tools</button>
+            <button class="chip-filter" data-filter="soft">soft skills</button>
+            <button class="chip-filter" data-filter="lang">languages</button>
+          </div>
+
+          <!-- SKILL BUTTONS
+               data-cat  = category (a filter hides every skill whose data-cat doesn't match)
+               data-used = text shown after "Used in:" when the skill is clicked.
+                           No data-used => shows "Part of my everyday toolkit." -->
+          <div class="skill-cloud">
+            <!-- technical -->
+            <button class="skill" data-cat="technical" data-used="student management">C Language</button>
+            <button class="skill" data-cat="technical" data-used="voting system, data analysis">Python</button>
+            <button class="skill" data-cat="technical" data-used="website, LabSync">HTML &amp; CSS</button>
+            <button class="skill" data-cat="technical" data-used="website, LabSync">JavaScript</button>
+            <button class="skill" data-cat="technical" data-used="LabSync">React Native</button>
+            <button class="skill" data-cat="technical" data-used="cybersecurity studies">Linux</button>
+            <button class="skill" data-cat="technical" data-used="sql mini projects, data analysis">SQL</button>
+
+            <!-- tools -->
+            <button class="skill" data-cat="tools" data-used="all my projects">GitHub</button>
+            <button class="skill" data-cat="tools" data-used="every project">VS Code</button>
+            <button class="skill" data-cat="tools" data-used="LabSync, website">Figma</button>
+            <button class="skill" data-cat="tools">Canva</button>
+            <button class="skill" data-cat="tools">LaTeX</button>
+            <button class="skill" data-cat="tools">Asana</button>
+            <button class="skill" data-cat="tools">Trello</button>
+            <button class="skill" data-cat="tools">Microsoft Office</button>
+
+            <!-- soft skills -->
+            <button class="skill" data-cat="soft">Teamwork</button>
+            <button class="skill" data-cat="soft">Time Management</button>
+            <button class="skill" data-cat="soft">Problem Solving</button>
+            <button class="skill" data-cat="soft">Communication</button>
+
+            <!-- languages -->
+            <button class="skill" data-cat="lang">French</button>
+            <button class="skill" data-cat="lang">English</button>
+            <button class="skill" data-cat="lang">Turkish</button>
+            <button class="skill" data-cat="lang">Arabic</button>
+            <button class="skill" data-cat="lang">Kabyle</button>
+          </div>
+
+          <!-- Where the "Used in: ..." text appears.
+               aria-live="polite" = screen readers announce the change -->
+          <p class="skill-info" id="skill-info" aria-live="polite">Click a skill to see where I use it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SECTION 4 : PROJECTS ========== -->
+    <section class="page" id="projects">
+      <div class="page-inner">
+        <h2 class="page-title" data-no="04">projects</h2>
+
+        <div class="page-body">
+          <div class="projects">
+            <!-- The whole block is ONE clickable link.
+                 Replace each href with the real repo URL of the project. -->
+            <a class="project" href="https://github.com/ilham2006-hup">
+              <span>
+                <span class="p-title">website</span>   <!-- project name -->
+                <span class="p-desc">Web development project built using HTML, CSS, and JavaScript.</span> <!-- description -->
+              </span>
+              <span class="arrow">&#8599;</span>       <!-- &#8599; = ↗ arrow -->
+            </a>
+            <a class="project" href="https://github.com/ilham2006-hup">
+              <span>
+                <span class="p-title">sql mini projects</span>
+                <span class="p-desc">A series of database management and SQL mini projects.</span>
+              </span>
+              <span class="arrow">&#8599;</span>
+            </a>
+            <a class="project" href="https://github.com/ilham2006-hup">
+              <span>
+                <span class="p-title">data analysis</span>
+                <span class="p-desc">Data evaluation and statistical analysis project.</span>
+              </span>
+              <span class="arrow">&#8599;</span>
+            </a>
+            <a class="project" href="https://github.com/ilham2006-hup">
+              <span>
+                <span class="p-title">student management</span>
+                <span class="p-desc">Student management desktop application developed in C.</span>
+              </span>
+              <span class="arrow">&#8599;</span>
+            </a>
+            <a class="project" href="https://github.com/ilham2006-hup">
+              <span>
+                <span class="p-title">elevator control</span>
+                <span class="p-desc">Elevator control logic system built in Java.</span>
+              </span>
+              <span class="arrow">&#8599;</span>
+            </a>
+            <a class="project" href="https://github.com/ilham2006-hup">
+              <span>
+                <span class="p-title">voting system</span>
+                <span class="p-desc">Secure voting system software developed in Python.</span>
+              </span>
+              <span class="arrow">&#8599;</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SECTION 5 : CONTACT ========== -->
+    <section class="page" id="contact">
+      <div class="page-inner">
+        <h2 class="page-title" data-no="05">contact</h2>
+
+        <div class="page-body">
+          <!-- This <div> groups link + button so they count as ONE block
+               for the reveal animation -->
+          <div>
+            <!-- mailto: opens the visitor's email app -->
+            <a class="big-link" href="mailto:ai.ferrat@ensta.edu.dz">ai.ferrat@ensta.edu.dz</a>
+            <!-- type="button" = never acts as a form submit. id is used by script.js to copy the email -->
+            <button class="copy" id="copy-mail" type="button">copy email</button>
+          </div>
+
+          <ul class="links">
+            <!-- target="_blank" = opens a new tab
+                 rel="noopener noreferrer" = security (the new tab can't control this page) -->
+            <li><a href="https://www.linkedin.com/in/ilham-ferrat-5514163ab" target="_blank" rel="noopener noreferrer">LinkedIn: ilham-ferrat</a></li>
+            <li><a href="https://github.com/ilham2006-hup" target="_blank" rel="noopener noreferrer">GitHub: ilham2006-hup</a></li>
+            <li>Saoula, Algiers, Algeria</li>
+          </ul>
+
+          <!-- &copy; = ©. The year inside <span id="year"> is replaced
+               automatically by script.js with the current year -->
+          <p class="footer">&copy; <span id="year">2026</span> Ferrat Ilham</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+ 
+  <nav class="dock" id="dock" aria-label="Main Navigation">
+    <!-- tooltip with the section name, visible only while dragging -->
+    <span class="dock-tip" id="dock-tip"></span>
+    <!-- sage pill that slides behind the active link (moved by script.js) -->
+    <span class="dock-highlight" id="dock-highlight"></span>
+
+    <a href="#home" data-target="home">home</a>
+    <a href="#parcours" data-target="parcours">experience</a>
+    <a href="#skills" data-target="skills">skills</a>
+    <a href="#projects" data-target="projects">projects</a>
+    <a href="#contact" data-target="contact">contact</a>
+  </nav>
+
+
+  <script src="script.js"></script>
+</body>
+</html>
