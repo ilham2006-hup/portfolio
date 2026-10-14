@@ -2,7 +2,6 @@
 
 
 
-
 const root = document.documentElement;                          // the <html> tag
 const pages = Array.from(document.querySelectorAll(".page"));   // all 5 <section class="page">
 const dock = document.getElementById("dock");                   // the navigation bar
