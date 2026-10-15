@@ -13,8 +13,12 @@ A personal portfolio featuring my projects, technical skills, and passion for cy
 
 ## Implemented Features
 - Home page with a personal introduction
-- “About Me” section
+- About Me section
 - Skills section
 - Projects section
 - Contact section
 Navigation between sections using buttons or left and right arrows (← →)
+
+## site link
+
+http://127.0.0.1:5500/index.html
